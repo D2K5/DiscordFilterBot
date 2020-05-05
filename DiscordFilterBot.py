@@ -69,32 +69,31 @@ async def on_ready():
 		already_connected = True
 	else:
 		print(current_time() + 'Successfuly reconnected!')
-		
+
 	#Set Playing as if not disabled:
-	# if config['SETTINGS']['playing_status'] != 'off':
-	# 	return await client.change_presence(game=discord.Game(name=config['SETTINGS']['playing_status']))
-	# else:
-	# 	await client.change_presence(game=None)
+	#if config['SETTINGS']['playing_status'] != 'off':
+	#	return await client.change_presence(game=discord.Game(name=config['SETTINGS']['playing_status']))
+	#else:
+	#	await client.change_presence(game=None)
 
 ### Main Bot's code, everything happens in here
 @client.event
 async def on_message(message):
-    if any(word in message.content.lower() for word in bl_phrases):
-        ###Report it to different channel and console if enabled:
-        if config.getboolean('SETTINGS', 'reports'):
-            reporting_channel_id = int("{}".format(config['SETTINGS']['reporting_channel_id']))
-            reporting_channel = client.get_channel(reporting_channel_id)
-            reporting_message = 'Removed %s: <%s> %s' % (message.channel, message.author, message.content)
-            await reporting_channel.send(reporting_message)
-        ### Remove the message which triggered the bot
-        if (reporting_channel and (str(message.channel) is not str(reporting_channel))):
-            await message.delete()
-            print(current_time() + 'Removed message - %s : %s' % (message.author, message.content))
-        ### Send reply/notification
-		# mention = '{0.author.mention}'.format(message)
-		# await client.send_message(message.channel, config['SETTINGS']['message_on_trigger'].replace("@user", mention, 1))
+	reporting_channel_id = int("{}".format(config['SETTINGS']['reporting_channel_id']))
+	reporting_channel = client.get_channel(reporting_channel_id)
+	if any(word in message.content.lower() for word in bl_phrases) and (str(message.channel) is not str(reporting_channel)):
+		###Report it to different channel and console if enabled:
+		if config.getboolean('SETTINGS', 'reports'):
+			reporting_message = 'Removed a message in %s: <%s> %s' % (message.channel, message.author, message.content)
+			await reporting_channel.send(reporting_message)
+		### Remove the message which triggered the bot
+		await message.delete()
+		print(current_time() + 'Removed message - %s : %s' % (message.author, message.content))
+		### Send reply/notification
+		#mention = '{0.author.mention}'.format(message)
+		#await message.channel.send(config['SETTINGS']['message_on_trigger'].replace("@user", mention, 1))
 	elif message.content.startswith('???creator'):
-		await client.send_message(message.channel, 'FilterBot 2.0 created by TheRadziu :joy:')
+		await client.send_message(message.channel, 'FilterBot 2.0 created by TheRadziu')
 
 ### Actually run the bot and try to reconnect on fail/disconnect
 is_offline = False
